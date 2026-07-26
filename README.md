@@ -35,7 +35,7 @@ const variant = useNtb('hero');
 | GA4 | `dataLayer.push({event: 'ab_assigned', ntb_test, ntb_variant})` — readable by gtag.js and GTM; register the params as [custom dimensions](https://developers.google.com/analytics/devguides/collection/ga4/integration) |
 | Umami | `umami.track('ab_assigned', {test, variant})`, with a short poll so a deferred Umami script still catches it |
 | umami-shopify | `Shopify.analytics.publish('umami:ab', {test, variant})` — the [custom pixel](https://github.com/notambourine/umami-shopify) forwards each publish to Umami after the pageview settles |
-| Shopify cart | `POST /cart/update.js` with a private `__ntb_<test>` attribute, so the variant rides onto the order and you can group revenue by it in the Admin API. Writes once per cart, not per pageview |
+| Shopify cart | `POST /cart/update.js` with a private `__ntb_<test>` attribute, so the variant rides onto the order and you can group revenue by it in the Admin API. Once per session, not per pageview. Express checkout (Buy It Now, Shop Pay) skips the cart, so those orders carry no attribute |
 
 ## Development
 

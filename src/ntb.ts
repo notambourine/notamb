@@ -49,30 +49,33 @@ emitters.push((test, variant) => {
 // customAttributes for revenue per variant.
 //
 // The '__' prefix makes the attribute private: Shopify keeps it out of Liquid
-// and out of the Ajax API, so there's nothing to hide in your theme and
-// full-page caching still works. The cost is you can't read it back in the
-// browser either, so this remembers what it wrote in localStorage.
+// and out of the Ajax API, so there's nothing to hide in your theme and page
+// caching still works. The cost is you can't read it back in the browser
+// either, so this remembers what it sent in sessionStorage.
 //
-// Writes once per cart rather than once per pageview: every cart update clears
-// the browser's prefetch cache, which slows navigation on themes that prefetch.
+// Once per session rather than once per pageview: every cart write clears the
+// browser's prefetch cache, which slows navigation on themes that prefetch.
+// A session memo also re-stamps a visitor who comes back with a fresh cart,
+// without the snippet having to know anything about cart tokens.
+//
+// This stamps whether or not a cart exists yet — the request creates an empty
+// one. Waiting for a cart would miss everyone who lands, adds, and checks out
+// on a single pageview, and that group is exactly the one a winning variant
+// grows.
 const cartWrites: Record<string, string> = {};
-let cartTimer = 0;
+let cartTimer: ReturnType<typeof setTimeout> | undefined;
 
 emitters.push((test, variant) => {
-  // The 'cart' cookie holds the cart token — an opaque id, so don't parse it.
-  // No cookie means no cart yet, and a visitor without a cart can't produce an
-  // order, so a later pageview stamps it instead.
-  const cookie = document.cookie.match(/(?:^|;\s*)cart=([^;]*)/);
-  if (!cookie) return;
-  const memo = 'ntb:cart:' + cookie[1];
+  // Read up front so a server render throws here and the caller skips this
+  // emitter, rather than crashing later inside the timer.
+  const s = (window as any).Shopify;
+  const root = (s && s.routes && s.routes.root) || '/';
 
-  let written: Record<string, string> = {};
   try {
-    written = JSON.parse(localStorage.getItem(memo) || '{}');
+    if (sessionStorage.getItem('ntb:cart:' + test) === variant) return;
   } catch {
-    // blocked or corrupt — treat it as nothing written yet
+    // storage blocked — stamp every pageview rather than not at all
   }
-  if (written[test] === variant) return;
 
   cartWrites[test] = variant;
   clearTimeout(cartTimer);
@@ -80,23 +83,23 @@ emitters.push((test, variant) => {
   cartTimer = setTimeout(() => {
     const attributes: Record<string, string> = {};
     for (const t in cartWrites) attributes['__ntb_' + t] = cartWrites[t];
-    const s = (window as any).Shopify;
-    const root = (s && s.routes && s.routes.root) || '/';
     fetch(root + 'cart/update.js', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       // Attributes merge, so sending only ntb keys leaves your own alone.
       body: JSON.stringify({ attributes: attributes }),
     })
-      .then(() => {
+      .then((res) => {
+        // A 4xx/5xx settles the promise too, so check before marking it sent.
+        if (!res.ok) return;
         try {
-          localStorage.setItem(memo, JSON.stringify(Object.assign(written, cartWrites)));
+          for (const t in cartWrites) sessionStorage.setItem('ntb:cart:' + t, cartWrites[t]);
         } catch {
           // best effort — a lost memo costs one redundant write next pageview
         }
       })
       .catch(() => {
-        // leave the memo alone so the next pageview retries
+        // network error — leave the memo unset so the next pageview retries
       });
   }, 0);
 });
