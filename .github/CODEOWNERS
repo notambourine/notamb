@@ -1,0 +1,4 @@
+# Review-gate injection-prone config dirs (needs branch protection to enforce).
+/.claude/ @tomfuertes
+/.vscode/ @tomfuertes
+/.github/ @tomfuertes

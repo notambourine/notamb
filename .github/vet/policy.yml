@@ -1,0 +1,6 @@
+name: default-supply-chain-gate
+description: Fail PRs introducing critical-severity vulnerabilities
+tags: [security]
+filters:
+  - name: critical-vulns
+    value: vulns.critical.exists(p, true)

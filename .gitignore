@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.wrangler/
+CLAUDE.local.md
+.DS_Store

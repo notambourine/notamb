@@ -1,0 +1,12 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "ntb",
+	"compatibility_date": "2026-07-01",
+	"assets": {
+		"directory": "./dist"
+	},
+	"routes": [{ "pattern": "ntb.notambourine.com", "custom_domain": true }],
+	"observability": {
+		"enabled": true
+	}
+}

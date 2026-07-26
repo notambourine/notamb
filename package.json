@@ -1,0 +1,25 @@
+{
+  "name": "ntb",
+  "version": "1.0.0",
+  "description": "Sticky A/B bucketing microlib — copy-paste from ntb.notambourine.com, not npm install",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "npm run build && wrangler dev",
+    "deploy": "npm run build && wrangler deploy",
+    "lint": "eslint .",
+    "pretest": "npm run build",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "esbuild": "^0.28.1",
+    "eslint": "^10.7.0",
+    "globals": "^17.7.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.65.0",
+    "wrangler": "^4.113.0"
+  }
+}

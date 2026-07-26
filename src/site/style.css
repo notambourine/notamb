@@ -1,0 +1,187 @@
+:root {
+  --bg: #0e1116;
+  --panel: #161b22;
+  --border: #2b3240;
+  --text: #dce3ec;
+  --muted: #8b96a5;
+  --accent: #58d68d;
+  --mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0 auto;
+  max-width: 60rem;
+  padding: 2rem 1.25rem 4rem;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.55 system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+header h1 {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 2.2rem;
+  letter-spacing: 0.02em;
+}
+
+.tag {
+  max-width: 42rem;
+  color: var(--muted);
+}
+
+.tag code,
+.usage p code,
+.usage li code,
+.options label code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  color: var(--accent);
+}
+
+nav a,
+footer a,
+.usage a {
+  color: var(--accent);
+}
+
+nav a + a {
+  margin-left: 1rem;
+}
+
+main {
+  display: grid;
+  grid-template-columns: 15rem 1fr;
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 0.6rem 0.9rem 0.8rem;
+}
+
+legend {
+  padding: 0 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+fieldset label {
+  display: block;
+  padding: 0.15rem 0;
+  cursor: pointer;
+}
+
+fieldset label:has(input:disabled) {
+  color: var(--muted);
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+input[type='radio'],
+input[type='checkbox'] {
+  accent-color: var(--accent);
+  margin-right: 0.45rem;
+}
+
+.output {
+  min-width: 0;
+}
+
+.output-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: var(--panel);
+  padding: 0.5rem 0.9rem;
+}
+
+#filename {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+#copy {
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--accent);
+  font: 600 0.85rem var(--mono);
+  padding: 0.3rem 1rem;
+  cursor: pointer;
+}
+
+#copy:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.output pre {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 0 0 8px 8px;
+  background: #0a0d12;
+  padding: 1rem;
+  overflow-x: auto;
+  max-height: 32rem;
+}
+
+pre code {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  white-space: pre;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.usage {
+  grid-column: 1 / -1;
+  max-width: 46rem;
+}
+
+.usage pre {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #0a0d12;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.usage li {
+  margin-bottom: 0.5rem;
+}
+
+footer {
+  margin-top: 3rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 44rem) {
+  main {
+    grid-template-columns: 1fr;
+  }
+}
