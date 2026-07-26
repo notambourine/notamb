@@ -39,7 +39,7 @@ const variant = useNotamb('hero');
 
 ## Development
 
-[`src/notamb.ts`](src/notamb.ts) is the single canonical source; `scripts/build.mjs` slices its `#region` blocks into all 120 format × language × tracker × minification variants and writes them, plus the configurator site, to `dist/`. The `version` in `package.json` is stamped into every snippet header — bumping it is the whole release.
+[`src/notamb.ts`](src/notamb.ts) is the single canonical source; `scripts/build.mjs` slices its `#region` blocks into every format × language × tracker × minification variant and writes them, plus the configurator site, to `dist/`. The `version` in `package.json` is stamped into every snippet header — bumping it is the whole release.
 
 ```sh
 npm ci
