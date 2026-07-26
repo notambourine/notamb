@@ -10,8 +10,7 @@
     "dev": "npm run build && wrangler dev",
     "deploy": "npm run build && wrangler deploy",
     "lint": "eslint .",
-    "pretest": "npm run build",
-    "test": "node --test"
+    "test": "npm run build && node --test"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

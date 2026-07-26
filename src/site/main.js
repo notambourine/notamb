@@ -85,8 +85,12 @@ function restoreFromHash() {
 
 copyBtn.addEventListener('click', async () => {
   await navigator.clipboard.writeText(codeEl.textContent);
-  copyBtn.textContent = 'Copied ✓';
-  setTimeout(() => (copyBtn.textContent = 'Copy'), 1200);
+  copyBtn.textContent = 'Copied';
+  copyBtn.classList.add('copied');
+  setTimeout(() => {
+    copyBtn.textContent = 'Copy';
+    copyBtn.classList.remove('copied');
+  }, 1200);
 });
 
 let variants = {};

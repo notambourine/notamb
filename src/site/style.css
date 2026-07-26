@@ -1,62 +1,127 @@
+/* NoTambourine brand — vendored token subset of colors_and_type.css from
+   the notambourine-design system. Dark by default, one pink accent, mint
+   is structural only (never a CTA). */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Montserrat:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
 :root {
-  --bg: #0e1116;
-  --panel: #161b22;
-  --border: #2b3240;
-  --text: #dce3ec;
-  --muted: #8b96a5;
-  --accent: #58d68d;
-  --mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+  --nt-pink: #e75a7c;
+  --nt-pink-press: #c9446a;
+  --nt-mint: #58c9b9;
+  --bg: #0b0b0c;
+  --bg-card: #141416;
+  --bg-raised: #1c1c1f;
+  --surface-3: #26262a;
+  --line: #2a2a2e;
+  --line-soft: #1f1f22;
+  --fg1: #f5f5f7;
+  --fg2: #c9c9ce;
+  --fg3: #8a8a92;
+  --accent-soft: rgba(231, 90, 124, 0.16);
+  --support-soft: rgba(88, 201, 185, 0.16);
+  --code-pink: #f5a6bb;
+  --font-display: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-accent: 'Montserrat', 'Roboto', system-ui, sans-serif;
+  --font-body: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-pill: 999px;
+  --shadow-pink: 0 8px 22px rgba(231, 90, 124, 0.28);
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur-2: 200ms;
 }
 
 * {
   box-sizing: border-box;
 }
 
+::selection {
+  background: var(--nt-pink);
+  color: #fff;
+}
+
 body {
   margin: 0 auto;
   max-width: 60rem;
-  padding: 2rem 1.25rem 4rem;
+  padding: 3rem 1.25rem 4rem;
   background: var(--bg);
-  color: var(--text);
-  font: 16px/1.55 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: var(--fg2);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+.eyebrow {
+  font-family: var(--font-accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nt-pink);
 }
 
 header h1 {
-  margin: 0;
-  font-family: var(--mono);
-  font-size: 2.2rem;
-  letter-spacing: 0.02em;
+  margin: 0.25rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 44px;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--fg1);
+  text-wrap: balance;
 }
 
 .tag {
   max-width: 42rem;
-  color: var(--muted);
+  color: var(--fg2);
+  text-wrap: pretty;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 13px;
 }
 
 .tag code,
 .usage p code,
 .usage li code,
 .options label code {
-  font-family: var(--mono);
-  font-size: 0.9em;
-  color: var(--accent);
+  background: rgba(231, 90, 124, 0.14);
+  color: var(--code-pink);
+  padding: 2px 6px;
+  border-radius: var(--r-xs);
 }
 
-nav a,
-footer a,
-.usage a {
-  color: var(--accent);
+a {
+  color: var(--nt-pink);
+  text-decoration: none;
+  border-bottom: 1.5px solid transparent;
+  transition: border-color var(--dur-2) var(--ease-out);
+}
+
+a:hover {
+  border-bottom-color: var(--nt-pink);
+}
+
+nav {
+  margin-top: 0.75rem;
+  font-family: var(--font-accent);
+  font-size: 14px;
+  font-weight: 600;
 }
 
 nav a + a {
-  margin-left: 1rem;
+  margin-left: 1.25rem;
 }
 
 main {
   display: grid;
-  grid-template-columns: 15rem 1fr;
+  grid-template-columns: 16rem 1fr;
   gap: 1.25rem;
-  margin-top: 2rem;
+  margin-top: 2.5rem;
 }
 
 .options {
@@ -66,37 +131,52 @@ main {
 }
 
 fieldset {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--panel);
-  padding: 0.6rem 0.9rem 0.8rem;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg-card);
+  padding: 0.75rem 0.9rem 0.9rem;
 }
 
 legend {
-  padding: 0 0.35rem;
-  font-size: 0.75rem;
-  font-weight: 600;
+  padding: 0 0.4rem;
+  font-family: var(--font-accent);
+  font-size: 11px;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--fg3);
 }
 
 fieldset label {
-  display: block;
-  padding: 0.15rem 0;
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 0.5rem;
+  border-radius: var(--r-sm);
+  color: var(--fg1);
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+  transition: background var(--dur-2) var(--ease-out);
+}
+
+fieldset label:hover {
+  background: var(--bg-raised);
 }
 
 fieldset label:has(input:disabled) {
-  color: var(--muted);
-  opacity: 0.55;
+  color: var(--fg3);
+  opacity: 0.5;
   cursor: not-allowed;
+  background: none;
 }
 
 input[type='radio'],
 input[type='checkbox'] {
-  accent-color: var(--accent);
-  margin-right: 0.45rem;
+  accent-color: var(--nt-pink);
+  width: 16px;
+  height: 16px;
+  margin: 0 0.6rem 0 0;
 }
 
 .output {
@@ -107,77 +187,109 @@ input[type='checkbox'] {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   border-bottom: 0;
-  border-radius: 8px 8px 0 0;
-  background: var(--panel);
-  padding: 0.5rem 0.9rem;
+  border-radius: var(--r-md) var(--r-md) 0 0;
+  background: var(--bg-card);
+  padding: 0.5rem 0.6rem 0.5rem 1rem;
 }
 
 #filename {
-  font-family: var(--mono);
-  font-size: 0.85rem;
-  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--fg3);
 }
 
 #copy {
-  border: 1px solid var(--accent);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--accent);
-  font: 600 0.85rem var(--mono);
-  padding: 0.3rem 1rem;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--nt-pink);
+  color: #fff;
+  font-family: var(--font-accent);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0.5rem 1.4rem;
   cursor: pointer;
+  box-shadow: var(--shadow-pink);
+  transition: all var(--dur-2) var(--ease-out);
 }
 
 #copy:hover {
-  background: var(--accent);
-  color: var(--bg);
+  background: var(--nt-pink-press);
+}
+
+#copy:active {
+  background: var(--nt-pink-press);
+  transform: scale(0.97);
+}
+
+#copy.copied {
+  background: var(--support-soft);
+  color: var(--nt-mint);
+  box-shadow: none;
 }
 
 .output pre {
   margin: 0;
-  border: 1px solid var(--border);
-  border-radius: 0 0 8px 8px;
-  background: #0a0d12;
-  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0 0 var(--r-md) var(--r-md);
+  background: var(--bg-card);
+  padding: 1.1rem;
   overflow-x: auto;
   max-height: 32rem;
 }
 
 pre code {
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  line-height: 1.5;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--fg2);
   white-space: pre;
 }
 
 .hint {
-  color: var(--muted);
-  font-size: 0.85rem;
+  color: var(--fg3);
+  font-size: 13px;
 }
 
 .usage {
   grid-column: 1 / -1;
   max-width: 46rem;
+  margin-top: 1.5rem;
+}
+
+.usage h2 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 24px;
+  letter-spacing: -0.01em;
+  color: var(--fg1);
+  margin: 2rem 0 0.75rem;
 }
 
 .usage pre {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: #0a0d12;
-  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg-card);
+  padding: 1.1rem;
   overflow-x: auto;
 }
 
 .usage li {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.usage strong {
+  color: var(--fg1);
 }
 
 footer {
-  margin-top: 3rem;
-  color: var(--muted);
-  font-size: 0.85rem;
+  margin-top: 4rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line-soft);
+  color: var(--fg3);
+  font-size: 13px;
 }
 
 @media (max-width: 44rem) {
