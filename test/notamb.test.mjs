@@ -295,13 +295,18 @@ test('every variant carries attribution and license', () => {
 });
 
 test('the site documents and offers exactly the trackers that were built', () => {
-  // Derive the tracker set from the variant keys rather than restating it, so
-  // this can't drift the way the docs did.
-  const built = [...new Set(Object.keys(variants).flatMap((k) => k.split('.')[3].split('+')))];
+  // Derive the trackers from the variant keys rather than restating them, so
+  // this can't drift the way the docs did. The widest subset is in canonical
+  // order, which is what the keys are built from — so compare order too, not
+  // just membership. Order drift breaks the configurator silently.
+  const built = Object.keys(variants)
+    .map((k) => k.split('.')[3])
+    .reduce((a, b) => (b.length > a.length ? b : a))
+    .split('+');
   const html = readFileSync(new URL('../dist/index.html', import.meta.url), 'utf8');
 
   const offered = [...html.matchAll(/name="tracker" value="([^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual([...offered].sort(), [...built].sort(), 'configurator checkboxes');
+  assert.deepEqual(offered, built, 'configurator checkboxes, in canonical order');
 
   const list = html.match(/Where exposures land<\/h2>\s*<ul>([\s\S]*?)<\/ul>/);
   assert.ok(list, 'the "Where exposures land" list is still findable');
