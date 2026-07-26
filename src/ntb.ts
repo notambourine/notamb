@@ -43,6 +43,68 @@ emitters.push((test, variant) => {
 });
 // #endregion
 
+// #region emitter:shopify-cart
+// Shopify theme — stamps the variant onto the cart as a private attribute, so
+// it rides through checkout onto the order. Read it back from the order's
+// customAttributes for revenue per variant.
+//
+// The '__' prefix makes the attribute private: Shopify keeps it out of Liquid
+// and out of the Ajax API, so there's nothing to hide in your theme and page
+// caching still works. The cost is you can't read it back in the browser
+// either, so this remembers what it sent in sessionStorage.
+//
+// Once per session rather than once per pageview: every cart write clears the
+// browser's prefetch cache, which slows navigation on themes that prefetch.
+// A session memo also re-stamps a visitor who comes back with a fresh cart,
+// without the snippet having to know anything about cart tokens.
+//
+// This stamps whether or not a cart exists yet — the request creates an empty
+// one. Waiting for a cart would miss everyone who lands, adds, and checks out
+// on a single pageview, and that group is exactly the one a winning variant
+// grows.
+const cartWrites: Record<string, string> = {};
+let cartTimer: ReturnType<typeof setTimeout> | undefined;
+
+emitters.push((test, variant) => {
+  // Read up front so a server render throws here and the caller skips this
+  // emitter, rather than crashing later inside the timer.
+  const s = (window as any).Shopify;
+  const root = (s && s.routes && s.routes.root) || '/';
+
+  try {
+    if (sessionStorage.getItem('ntb:cart:' + test) === variant) return;
+  } catch {
+    // storage blocked — stamp every pageview rather than not at all
+  }
+
+  cartWrites[test] = variant;
+  clearTimeout(cartTimer);
+  // Collect every test bucketed on this pageview into a single request.
+  cartTimer = setTimeout(() => {
+    const attributes: Record<string, string> = {};
+    for (const t in cartWrites) attributes['__ntb_' + t] = cartWrites[t];
+    fetch(root + 'cart/update.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      // Attributes merge, so sending only ntb keys leaves your own alone.
+      body: JSON.stringify({ attributes: attributes }),
+    })
+      .then((res) => {
+        // A 4xx/5xx settles the promise too, so check before marking it sent.
+        if (!res.ok) return;
+        try {
+          for (const t in cartWrites) sessionStorage.setItem('ntb:cart:' + t, cartWrites[t]);
+        } catch {
+          // best effort — a lost memo costs one redundant write next pageview
+        }
+      })
+      .catch(() => {
+        // network error — leave the memo unset so the next pageview retries
+      });
+  }, 0);
+});
+// #endregion
+
 // #region emitter:umami
 // Umami script tag — window.umami appears only once the (usually deferred)
 // script runs, so poll briefly instead of assuming load order.
