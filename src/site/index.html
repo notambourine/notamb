@@ -6,7 +6,7 @@
     <title>notamb — sticky A/B bucketing you paste, not install</title>
     <meta
       name="description"
-      content="Configure a copy-paste A/B bucketing snippet: ES module or inline script, JS or TS, optional React hook, exposures to GA4, Umami, or the umami-shopify pixel."
+      content="Configure a copy-paste A/B bucketing snippet: ES module or inline script, JS or TS, optional React hook, exposures to GA4, Umami, the umami-shopify pixel, or the Shopify cart for revenue per variant."
     />
     <link
       rel="icon"
@@ -104,6 +104,13 @@ notamb('cta-copy', 3);               // three-way test → 0, 1, or 2</code></pr
             <code>Shopify.analytics.publish('umami:ab', {test, variant})</code>; the
             <a href="https://github.com/notambourine/umami-shopify">custom pixel</a> forwards each
             publish to Umami as one <code>ab_assigned</code> event, sequenced after the pageview.
+          </li>
+          <li>
+            <strong>Shopify cart</strong> — <code>POST /cart/update.js</code> with a private
+            <code>__notamb_&lt;test&gt;</code> attribute, so the variant rides through checkout onto
+            the order and you can group revenue by it in the Admin API. Once per session rather than
+            per pageview, because every cart write clears the browser's prefetch cache. Express
+            checkout (Buy It Now, Shop Pay) skips the cart, so those orders carry no attribute.
           </li>
         </ul>
       </section>
