@@ -60,10 +60,10 @@ function render() {
   if (format === 'inline') {
     filenameEl.textContent = 'inline <script>';
     hintEl.textContent =
-      'Paste before </head>, or into a GTM Custom HTML tag. window.ntb is global.';
+      'Paste before </head>, or into a GTM Custom HTML tag. window.notamb is global.';
   } else {
-    filenameEl.textContent = lang === 'ts' ? 'ntb.ts' : 'ntb.js';
-    hintEl.textContent = `Save into your source tree, then: import { ntb${hook ? ', useNtb' : ''} } from './ntb';`;
+    filenameEl.textContent = lang === 'ts' ? 'notamb.ts' : 'notamb.js';
+    hintEl.textContent = `Save into your source tree, then: import { notamb${hook ? ', useNotamb' : ''} } from './notamb';`;
   }
 
   location.hash = key;
@@ -98,7 +98,8 @@ let variants = {};
 fetch('variants.json')
   .then((r) => r.json())
   .then((data) => {
-    variants = data;
+    variants = data.variants;
+    document.getElementById('version').textContent = `notamb v${data.version} · `;
     restoreFromHash();
     render();
   });

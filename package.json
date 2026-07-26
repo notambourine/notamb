@@ -1,7 +1,7 @@
 {
-  "name": "ntb",
-  "version": "1.0.0",
-  "description": "Sticky A/B bucketing microlib — copy-paste from ntb.notambourine.com, not npm install",
+  "name": "notamb",
+  "version": "0.0.1",
+  "description": "Sticky A/B bucketing microlib — copy-paste from notamb.notambourine.com, not npm install",
   "private": true,
   "type": "module",
   "license": "MIT",

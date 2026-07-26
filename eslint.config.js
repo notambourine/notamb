@@ -18,7 +18,7 @@ export default tseslint.config(
     languageOptions: { globals: globals.node },
   },
   {
-    files: ['src/ntb.ts'],
+    files: ['src/notamb.ts'],
     extends: tseslint.configs.recommended,
     languageOptions: { globals: globals.browser },
     rules: {

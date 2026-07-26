@@ -1,4 +1,4 @@
-// Slices src/ntb.ts #region blocks into every copy-paste variant and writes
+// Slices src/notamb.ts #region blocks into every copy-paste variant and writes
 // dist/ (configurator site + variants.json). The source file is the single
 // truth; nothing generated is checked in.
 import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -7,14 +7,16 @@ import { transform } from 'esbuild';
 import ts from 'typescript';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const SRC = readFileSync(root + 'src/ntb.ts', 'utf8');
+const SRC = readFileSync(root + 'src/notamb.ts', 'utf8');
+// package.json is the only place the version lives; bumping it is the release.
+const VERSION = JSON.parse(readFileSync(root + 'package.json', 'utf8')).version;
 // Order fixes the variant keys, so it must match TRACKERS in src/site/main.js.
 const TRACKERS = ['ga4', 'umami', 'umami-shopify', 'shopify-cart'];
 
 function region(name) {
   const re = new RegExp(`// #region ${name}\\n([\\s\\S]*?)// #endregion`);
   const m = SRC.match(re);
-  if (!m) throw new Error(`region "${name}" missing from src/ntb.ts`);
+  if (!m) throw new Error(`region "${name}" missing from src/notamb.ts`);
   return m[1].trimEnd();
 }
 
@@ -33,9 +35,9 @@ function header({ format, lang, hook, trackers, min }) {
   if (min) bits.push('minified');
   return [
     '/*!',
-    ` * ntb — sticky A/B bucketing (${bits.join(' · ')})`,
+    ` * notamb v${VERSION} — sticky A/B bucketing (${bits.join(' · ')})`,
     ' * © 2026 NoTambourine — MIT license',
-    ' * generated at https://ntb.notambourine.com · source: https://github.com/notambourine/ntb',
+    ' * generated at https://notamb.notambourine.com · source: https://github.com/notambourine/notamb',
     ' */',
     '',
   ].join('\n');
@@ -46,7 +48,7 @@ function wrapIife(body) {
     .split('\n')
     .map((line) => (line ? '  ' + line : line))
     .join('\n');
-  return `(function () {\n${indented}\n\n  window.ntb = ntb;\n})();`;
+  return `(function () {\n${indented}\n\n  window.notamb = notamb;\n})();`;
 }
 
 async function buildVariant(opt) {
@@ -59,7 +61,7 @@ async function buildVariant(opt) {
 
   let code = parts.join('\n\n');
   if (opt.format === 'module') {
-    code += `\n\nexport { ntb${opt.hook ? ', useNtb' : ''} };`;
+    code += `\n\nexport { notamb${opt.hook ? ', useNotamb' : ''} };`;
   } else {
     code = wrapIife(code);
   }
@@ -102,6 +104,8 @@ for (const format of ['module', 'inline']) {
 rmSync(root + 'dist', { recursive: true, force: true });
 mkdirSync(root + 'dist', { recursive: true });
 cpSync(root + 'src/site', root + 'dist', { recursive: true });
-const json = JSON.stringify(variants);
+const json = JSON.stringify({ version: VERSION, variants });
 writeFileSync(root + 'dist/variants.json', json);
-console.log(`built ${Object.keys(variants).length} variants (${(json.length / 1024).toFixed(0)} KB) → dist/`);
+console.log(
+  `built ${Object.keys(variants).length} variants of v${VERSION} (${(json.length / 1024).toFixed(0)} KB) → dist/`,
+);
