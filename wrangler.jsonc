@@ -1,11 +1,11 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "ntb",
+	"name": "notamb",
 	"compatibility_date": "2026-07-01",
 	"assets": {
 		"directory": "./dist"
 	},
-	// Custom domain (ntb.notambourine.com) is attached in the CF dashboard,
+	// Custom domain (notamb.notambourine.com) is attached in the CF dashboard,
 	// same as the site worker — the Workers Builds token has no zone access,
 	// so a routes entry here fails the deploy.
 	"observability": {

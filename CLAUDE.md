@@ -3,24 +3,25 @@
 ## Commands
 
 - `npm test` — build, then `node --test` against `dist/variants.json` (build is inlined in the script; pretest lifecycle hooks don't fire reliably here)
-- `npm run build` — slice `src/ntb.ts` into `dist/` (site + variants.json)
-- `npm run lint` — eslint (flat config; typescript-eslint covers `src/ntb.ts`)
+- `npm run build` — slice `src/notamb.ts` into `dist/` (site + variants.json)
+- `npm run lint` — eslint (flat config; typescript-eslint covers `src/notamb.ts`)
 - `npm run dev` — build + `wrangler dev` (use `run_in_background: true`)
 - `npm run deploy` — build + deploy to Cloudflare Workers
 
 ## Architecture
 
-- `src/ntb.ts` is the **single canonical source**. `scripts/build.mjs` slices its `// #region` blocks into every copy-paste variant — never hand-edit generated output, and keep region markers intact when editing.
-- Comments and types inside `src/ntb.ts` regions ship verbatim in user-facing snippets. Write them for the person pasting the code, not for this repo.
+- `src/notamb.ts` is the **single canonical source**. `scripts/build.mjs` slices its `// #region` blocks into every copy-paste variant — never hand-edit generated output, and keep region markers intact when editing.
+- Comments and types inside `src/notamb.ts` regions ship verbatim in user-facing snippets. Write them for the person pasting the code, not for this repo.
 - Variant keys are `format.lang.hook|plain.trackers.min|pretty` — `scripts/build.mjs` and `src/site/main.js` must derive them identically (canonical tracker order: ga4, umami, umami-shopify, shopify-cart).
 - Excluded combos by design: inline+ts, inline+hook, ts+minified.
+- `dist/variants.json` is `{ version, variants }`. The version comes from `package.json` and is stamped into every snippet header — bumping `package.json` is the whole release.
 - The worker is assets-only (`wrangler.jsonc`, no `main`); `dist/` is gitignored and rebuilt on deploy.
-- Live site: [ntb.notambourine.com](https://ntb.notambourine.com).
+- Live site: [notamb.notambourine.com](https://notamb.notambourine.com).
 - Tests run against the *generated* variants, not the source — what users paste is what's tested.
 
 ## Ecosystem
 
-Sister repo `../umami-shopify` (same workspace): its custom pixel subscribes to `umami:ab` publishes, which `ntb`'s umami-shopify emitter produces. Its README references `window.ntb('hero')` — keep the API compatible (returns 0-based int, sticky, one exposure per window).
+Sister repo `../umami-shopify` (same workspace): its custom pixel subscribes to `umami:ab` publishes, which `notamb`'s umami-shopify emitter produces. Its README references `window.notamb('hero')` — keep the API compatible (returns 0-based int, sticky, one exposure per window).
 
 ## Brand
 

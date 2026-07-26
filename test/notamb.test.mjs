@@ -1,14 +1,14 @@
 // Behavioral tests run against the GENERATED variants (dist/variants.json,
-// built by the pretest hook), not the canonical source — what users paste is
+// built by the test script), not the canonical source — what users paste is
 // what gets tested.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-const variants = JSON.parse(
-  readFileSync(new URL('../dist/variants.json', import.meta.url), 'utf8'),
-);
+const built = JSON.parse(readFileSync(new URL('../dist/variants.json', import.meta.url), 'utf8'));
+const variants = built.variants;
+const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 
 const ALL = 'inline.js.plain.ga4+umami+umami-shopify.pretty';
 
@@ -56,20 +56,20 @@ function boot(key, { storage = makeStorage(), globals = {} } = {}) {
 
 test('buckets in range and sticks across calls and pageloads', () => {
   const { sandbox, storage } = boot(ALL);
-  const v = sandbox.ntb('hero');
+  const v = sandbox.notamb('hero');
   assert.ok(v === 0 || v === 1);
-  assert.equal(sandbox.ntb('hero'), v);
-  assert.equal(storage.backing['ntb:hero'], String(v));
+  assert.equal(sandbox.notamb('hero'), v);
+  assert.equal(storage.backing['notamb:hero'], String(v));
 
   // same storage, fresh window = new pageload → same bucket
   const second = boot(ALL, { storage: makeStorage({ ...storage.backing }) });
-  assert.equal(second.sandbox.ntb('hero'), v);
+  assert.equal(second.sandbox.notamb('hero'), v);
 });
 
 test('multi-variant tests stay in range', () => {
   const { sandbox } = boot(ALL);
   for (const name of ['a', 'b', 'c', 'd', 'e']) {
-    const v = sandbox.ntb(name, 3);
+    const v = sandbox.notamb(name, 3);
     assert.ok(v >= 0 && v < 3);
   }
 });
@@ -83,15 +83,15 @@ test('one exposure per test per window, all trackers fire', () => {
       umami: { track: (name, data) => tracked.push([name, data]) },
     },
   });
-  const v = String(sandbox.ntb('hero'));
-  sandbox.ntb('hero');
-  sandbox.ntb('hero');
+  const v = String(sandbox.notamb('hero'));
+  sandbox.notamb('hero');
+  sandbox.notamb('hero');
 
   assert.equal(sandbox.dataLayer.length, 1);
   assert.deepEqual(plain(sandbox.dataLayer[0]), {
     event: 'ab_assigned',
-    ntb_test: 'hero',
-    ntb_variant: v,
+    notamb_test: 'hero',
+    notamb_variant: v,
   });
   assert.deepEqual(plain(published), [['umami:ab', { test: 'hero', variant: v }]]);
   assert.deepEqual(plain(tracked), [['ab_assigned', { test: 'hero', variant: v }]]);
@@ -100,7 +100,7 @@ test('one exposure per test per window, all trackers fire', () => {
 test('umami emitter polls until the script shows up', () => {
   const tracked = [];
   const { sandbox, timeouts } = boot('inline.js.plain.umami.pretty');
-  const v = String(sandbox.ntb('hero'));
+  const v = String(sandbox.notamb('hero'));
   assert.equal(tracked.length, 0);
   assert.ok(timeouts.length > 0, 'poll scheduled');
 
@@ -119,17 +119,17 @@ test('blocked localStorage still returns a usable variant', () => {
     },
   };
   const { sandbox } = boot(ALL, { storage: throwing });
-  const v = sandbox.ntb('hero');
+  const v = sandbox.notamb('hero');
   assert.ok(v === 0 || v === 1);
 });
 
 test('out-of-range stored value rebuckets', () => {
-  const { sandbox } = boot(ALL, { storage: makeStorage({ 'ntb:hero': '9' }) });
-  const v = sandbox.ntb('hero');
+  const { sandbox } = boot(ALL, { storage: makeStorage({ 'notamb:hero': '9' }) });
+  const v = sandbox.notamb('hero');
   assert.ok(v === 0 || v === 1);
 });
 
-test('a failing tracker does not break ntb or the other trackers', () => {
+test('a failing tracker does not break notamb or the other trackers', () => {
   const { sandbox } = boot(ALL, {
     globals: {
       Shopify: {
@@ -141,15 +141,15 @@ test('a failing tracker does not break ntb or the other trackers', () => {
       },
     },
   });
-  const v = sandbox.ntb('hero');
+  const v = sandbox.notamb('hero');
   assert.ok(v === 0 || v === 1);
   assert.equal(sandbox.dataLayer.length, 1);
 });
 
 test('module variant exports work, hook buckets once', () => {
   const { sandbox } = boot('module.js.hook.ga4.pretty');
-  const v = sandbox.useNtb('hero');
-  assert.equal(sandbox.ntb('hero'), v);
+  const v = sandbox.useNotamb('hero');
+  assert.equal(sandbox.notamb('hero'), v);
   assert.equal(sandbox.dataLayer.length, 1);
 });
 
@@ -191,7 +191,7 @@ const tick = () => new Promise((r) => setImmediate(r));
 test('shopify-cart writes the variant as a private cart attribute', async () => {
   const { calls, globals, session, run } = cartGlobals();
   const { sandbox } = boot(CART, { globals });
-  const v = String(sandbox.ntb('hero'));
+  const v = String(sandbox.notamb('hero'));
 
   assert.equal(calls.length, 0, 'batched, not sent inline');
   run();
@@ -199,21 +199,26 @@ test('shopify-cart writes the variant as a private cart attribute', async () => 
 
   assert.equal(calls.length, 1);
   assert.match(calls[0].url, /cart\/update\.js$/);
-  assert.deepEqual(plain(calls[0].body), { attributes: { __ntb_hero: v } });
-  assert.equal(session.backing['ntb:cart:hero'], v);
+  assert.deepEqual(plain(calls[0].body), { attributes: { __notamb_hero: v } });
+  assert.equal(session.backing['notamb:cart:hero'], v);
 });
 
 test('shopify-cart writes once per session, not once per pageview', async () => {
   const first = cartGlobals();
-  const { sandbox } = boot(CART, { globals: first.globals });
-  sandbox.ntb('hero');
+  const { sandbox, storage } = boot(CART, { globals: first.globals });
+  sandbox.notamb('hero');
   first.run();
   await tick();
   assert.equal(first.calls.length, 1);
 
-  // fresh window, same session store = a second pageview in the same tab
+  // fresh window, same localStorage + session store = a second pageview in the
+  // same tab. localStorage has to carry over or the second pageview rebuckets
+  // and the dedupe is correct to write again.
   const second = cartGlobals({ session: first.session });
-  boot(CART, { globals: second.globals }).sandbox.ntb('hero');
+  boot(CART, {
+    globals: second.globals,
+    storage: makeStorage({ ...storage.backing }),
+  }).sandbox.notamb('hero');
   second.run();
   await tick();
   assert.equal(second.calls.length, 0, 'no second write this session');
@@ -222,28 +227,28 @@ test('shopify-cart writes once per session, not once per pageview', async () => 
 test('shopify-cart batches several tests into one request', async () => {
   const { calls, globals, run } = cartGlobals();
   const { sandbox } = boot(CART, { globals });
-  const hero = String(sandbox.ntb('hero'));
-  const price = String(sandbox.ntb('price'));
+  const hero = String(sandbox.notamb('hero'));
+  const price = String(sandbox.notamb('price'));
   run();
   await tick();
 
   assert.equal(calls.length, 1, 'one POST, so one prefetch-cache clear');
   assert.deepEqual(plain(calls[0].body), {
-    attributes: { __ntb_hero: hero, __ntb_price: price },
+    attributes: { __notamb_hero: hero, __notamb_price: price },
   });
 });
 
 test('shopify-cart retries next pageview when the write is rejected', async () => {
   const failed = cartGlobals({ ok: false });
   const { sandbox } = boot(CART, { globals: failed.globals });
-  sandbox.ntb('hero');
+  sandbox.notamb('hero');
   failed.run();
   await tick();
   assert.equal(failed.calls.length, 1);
   assert.deepEqual(failed.session.backing, {}, 'a 422 must not count as sent');
 
   const retry = cartGlobals({ session: failed.session });
-  boot(CART, { globals: retry.globals }).sandbox.ntb('hero');
+  boot(CART, { globals: retry.globals }).sandbox.notamb('hero');
   retry.run();
   await tick();
   assert.equal(retry.calls.length, 1, 'sent again');
@@ -260,11 +265,11 @@ test('shopify-cart still stamps when sessionStorage is blocked', async () => {
   };
   const { calls, globals, run } = cartGlobals({ session: blocked });
   const { sandbox } = boot(CART, { globals });
-  const v = String(sandbox.ntb('hero'));
+  const v = String(sandbox.notamb('hero'));
   run();
   await tick();
 
-  assert.deepEqual(plain(calls[0].body), { attributes: { __ntb_hero: v } });
+  assert.deepEqual(plain(calls[0].body), { attributes: { __notamb_hero: v } });
 });
 
 test('shopify-cart is inert without a window (server render)', () => {
@@ -272,7 +277,7 @@ test('shopify-cart is inert without a window (server render)', () => {
   const { sandbox } = boot('module.js.hook.shopify-cart.pretty', {
     globals: { window: undefined, setTimeout: (fn) => scheduled.push(fn) },
   });
-  const v = sandbox.useNtb('hero');
+  const v = sandbox.useNotamb('hero');
   assert.ok(v === 0 || v === 1, 'bucketing still works');
   // Bailing before the timer is the point: a scheduled callback would reach
   // for fetch on a server and take the render down.
@@ -285,7 +290,18 @@ test('every variant carries attribution and license', () => {
   for (const key of keys) {
     assert.match(variants[key], /NoTambourine/, key);
     assert.match(variants[key], /MIT license/, key);
-    assert.match(variants[key], /ntb\.notambourine\.com/, key);
+    assert.match(variants[key], /notamb\.notambourine\.com/, key);
+  }
+});
+
+test('every variant is stamped with the package version', () => {
+  assert.match(pkg.version, /^\d+\.\d+\.\d+$/);
+  assert.equal(built.version, pkg.version);
+  for (const key of Object.keys(variants)) {
+    // Minified builds drop legal comments, but the header is prepended after
+    // minification — so the stamp must survive there too.
+    assert.match(variants[key], /notamb v\d+\.\d+\.\d+ — sticky A\/B bucketing/, key);
+    assert.ok(variants[key].includes(`notamb v${pkg.version}`), key);
   }
 });
 

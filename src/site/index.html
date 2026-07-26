@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ntb — sticky A/B bucketing you paste, not install</title>
+    <title>notamb — sticky A/B bucketing you paste, not install</title>
     <meta
       name="description"
       content="Configure a copy-paste A/B bucketing snippet: ES module or inline script, JS or TS, optional React hook, exposures to GA4, Umami, or the umami-shopify pixel."
     />
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23E75A7C'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='monospace' font-weight='700' font-size='26' fill='%23fff'%3Entb%3C/text%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23E75A7C'/%3E%3Ctext x='32' y='37' text-anchor='middle' font-family='monospace' font-weight='700' font-size='15' fill='%23fff'%3Enotamb%3C/text%3E%3C/svg%3E"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,13 +19,13 @@
   <body>
     <header>
       <span class="eyebrow">A NoTambourine microlib</span>
-      <h1>ntb</h1>
+      <h1>notamb</h1>
       <p class="tag">
-        Sticky A/B bucketing you paste, not install. <code>ntb('hero')</code> returns a variant,
+        Sticky A/B bucketing you paste, not install. <code>notamb('hero')</code> returns a variant,
         remembers it per browser, and reports the exposure to your analytics.
       </p>
       <nav>
-        <a href="https://github.com/notambourine/ntb">GitHub</a>
+        <a href="https://github.com/notambourine/notamb">GitHub</a>
         <a href="https://github.com/notambourine/umami-shopify">umami-shopify (sister project)</a>
       </nav>
     </header>
@@ -60,14 +60,14 @@
 
         <fieldset>
           <legend>Extras</legend>
-          <label><input type="checkbox" name="hook" /> React hook (<code>useNtb</code>)</label>
+          <label><input type="checkbox" name="hook" /> React hook (<code>useNotamb</code>)</label>
           <label><input type="checkbox" name="min" /> minified</label>
         </fieldset>
       </section>
 
       <section class="output" aria-label="Generated snippet">
         <div class="output-head">
-          <span id="filename">ntb.js</span>
+          <span id="filename">notamb.js</span>
           <button id="copy" type="button">Copy</button>
         </div>
         <pre><code id="code"></code></pre>
@@ -76,19 +76,19 @@
 
       <section class="usage">
         <h2>Use it</h2>
-        <pre><code>const variant = ntb('hero');      // 0 or 1, sticky for this browser
+        <pre><code>const variant = notamb('hero');      // 0 or 1, sticky for this browser
 if (variant === 1) document.body.classList.add('hero-b');
 
-ntb('cta-copy', 3);               // three-way test → 0, 1, or 2</code></pre>
+notamb('cta-copy', 3);               // three-way test → 0, 1, or 2</code></pre>
         <p>
           Assignment is uniform random, persisted in <code>localStorage</code> under
-          <code>ntb:&lt;test&gt;</code>. The exposure fires once per test per page load — SPA route
+          <code>notamb:&lt;test&gt;</code>. The exposure fires once per test per page load — SPA route
           changes don't re-fire it. Analyze by unique visitors per variant, not raw events.
         </p>
         <h2>Where exposures land</h2>
         <ul>
           <li>
-            <strong>GA4</strong> — <code>dataLayer.push({event: 'ab_assigned', ntb_test, ntb_variant})</code>,
+            <strong>GA4</strong> — <code>dataLayer.push({event: 'ab_assigned', notamb_test, notamb_variant})</code>,
             readable by gtag.js and GTM. Register the two params as
             <a href="https://developers.google.com/analytics/devguides/collection/ga4/integration"
               >custom dimensions</a
@@ -109,7 +109,9 @@ ntb('cta-copy', 3);               // three-way test → 0, 1, or 2</code></pre>
       </section>
     </main>
 
-    <footer>MIT · © 2026 <a href="https://notambourine.com">NoTambourine</a></footer>
+    <!-- #version is filled from variants.json; empty until then, so the footer
+         reads correctly with no script. -->
+    <footer><span id="version"></span>MIT · © 2026 <a href="https://notambourine.com">NoTambourine</a></footer>
 
     <script src="main.js"></script>
   </body>
