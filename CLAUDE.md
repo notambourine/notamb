@@ -15,6 +15,7 @@
 - Variant keys are `format.lang.hook|plain.trackers.min|pretty` — `scripts/build.mjs` and `src/site/main.js` must derive them identically (canonical tracker order: ga4, umami, umami-shopify).
 - Excluded combos by design: inline+ts, inline+hook, ts+minified.
 - The worker is assets-only (`wrangler.jsonc`, no `main`); `dist/` is gitignored and rebuilt on deploy.
+- Live site: [ntb.notambourine.com](https://ntb.notambourine.com).
 - Tests run against the *generated* variants, not the source — what users paste is what's tested.
 
 ## Ecosystem
