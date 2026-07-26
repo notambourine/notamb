@@ -5,7 +5,9 @@
 	"assets": {
 		"directory": "./dist"
 	},
-	"routes": [{ "pattern": "ntb.notambourine.com", "custom_domain": true }],
+	// Custom domain (ntb.notambourine.com) is attached in the CF dashboard,
+	// same as the site worker — the Workers Builds token has no zone access,
+	// so a routes entry here fails the deploy.
 	"observability": {
 		"enabled": true
 	}
