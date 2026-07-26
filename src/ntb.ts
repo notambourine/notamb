@@ -43,6 +43,65 @@ emitters.push((test, variant) => {
 });
 // #endregion
 
+// #region emitter:shopify-cart
+// Shopify theme — stamps the variant onto the cart as a private attribute, so
+// it rides through checkout onto the order. Read it back from the order's
+// customAttributes for revenue per variant.
+//
+// The '__' prefix makes the attribute private: Shopify keeps it out of Liquid
+// and out of the Ajax API, so there's nothing to hide in your theme and
+// full-page caching still works. The cost is you can't read it back in the
+// browser either, so this remembers what it wrote in localStorage.
+//
+// Writes once per cart rather than once per pageview: every cart update clears
+// the browser's prefetch cache, which slows navigation on themes that prefetch.
+const cartWrites: Record<string, string> = {};
+let cartTimer = 0;
+
+emitters.push((test, variant) => {
+  // The 'cart' cookie holds the cart token — an opaque id, so don't parse it.
+  // No cookie means no cart yet, and a visitor without a cart can't produce an
+  // order, so a later pageview stamps it instead.
+  const cookie = document.cookie.match(/(?:^|;\s*)cart=([^;]*)/);
+  if (!cookie) return;
+  const memo = 'ntb:cart:' + cookie[1];
+
+  let written: Record<string, string> = {};
+  try {
+    written = JSON.parse(localStorage.getItem(memo) || '{}');
+  } catch {
+    // blocked or corrupt — treat it as nothing written yet
+  }
+  if (written[test] === variant) return;
+
+  cartWrites[test] = variant;
+  clearTimeout(cartTimer);
+  // Collect every test bucketed on this pageview into a single request.
+  cartTimer = setTimeout(() => {
+    const attributes: Record<string, string> = {};
+    for (const t in cartWrites) attributes['__ntb_' + t] = cartWrites[t];
+    const s = (window as any).Shopify;
+    const root = (s && s.routes && s.routes.root) || '/';
+    fetch(root + 'cart/update.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      // Attributes merge, so sending only ntb keys leaves your own alone.
+      body: JSON.stringify({ attributes: attributes }),
+    })
+      .then(() => {
+        try {
+          localStorage.setItem(memo, JSON.stringify(Object.assign(written, cartWrites)));
+        } catch {
+          // best effort — a lost memo costs one redundant write next pageview
+        }
+      })
+      .catch(() => {
+        // leave the memo alone so the next pageview retries
+      });
+  }, 0);
+});
+// #endregion
+
 // #region emitter:umami
 // Umami script tag — window.umami appears only once the (usually deferred)
 // script runs, so poll briefly instead of assuming load order.

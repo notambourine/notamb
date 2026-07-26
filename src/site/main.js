@@ -1,6 +1,7 @@
 // Configurator: reads the option inputs, looks the combination up in
 // variants.json (pre-built by scripts/build.mjs), and renders it for copy.
-const TRACKERS = ['ga4', 'umami', 'umami-shopify'];
+// Must match TRACKERS in scripts/build.mjs exactly — same order, same names.
+const TRACKERS = ['ga4', 'umami', 'umami-shopify', 'shopify-cart'];
 
 const codeEl = document.getElementById('code');
 const filenameEl = document.getElementById('filename');

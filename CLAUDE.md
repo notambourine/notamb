@@ -12,7 +12,7 @@
 
 - `src/ntb.ts` is the **single canonical source**. `scripts/build.mjs` slices its `// #region` blocks into every copy-paste variant — never hand-edit generated output, and keep region markers intact when editing.
 - Comments and types inside `src/ntb.ts` regions ship verbatim in user-facing snippets. Write them for the person pasting the code, not for this repo.
-- Variant keys are `format.lang.hook|plain.trackers.min|pretty` — `scripts/build.mjs` and `src/site/main.js` must derive them identically (canonical tracker order: ga4, umami, umami-shopify).
+- Variant keys are `format.lang.hook|plain.trackers.min|pretty` — `scripts/build.mjs` and `src/site/main.js` must derive them identically (canonical tracker order: ga4, umami, umami-shopify, shopify-cart).
 - Excluded combos by design: inline+ts, inline+hook, ts+minified.
 - The worker is assets-only (`wrangler.jsonc`, no `main`); `dist/` is gitignored and rebuilt on deploy.
 - Live site: [ntb.notambourine.com](https://ntb.notambourine.com).

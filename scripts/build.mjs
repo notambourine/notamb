@@ -8,7 +8,8 @@ import ts from 'typescript';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const SRC = readFileSync(root + 'src/ntb.ts', 'utf8');
-const TRACKERS = ['ga4', 'umami', 'umami-shopify'];
+// Order fixes the variant keys, so it must match TRACKERS in src/site/main.js.
+const TRACKERS = ['ga4', 'umami', 'umami-shopify', 'shopify-cart'];
 
 function region(name) {
   const re = new RegExp(`// #region ${name}\\n([\\s\\S]*?)// #endregion`);

@@ -151,9 +151,103 @@ test('module variant exports work, hook buckets once', () => {
   assert.equal(sandbox.dataLayer.length, 1);
 });
 
+// Shapes a sandbox for the shopify-cart emitter: a cart cookie, a fetch that
+// records calls, and a timer queue that honours cancellation. A no-op
+// clearTimeout would let every debounced callback fire and hide whether
+// batching works at all.
+function cartGlobals(cookie = 'cart=tok123') {
+  const calls = [];
+  const scheduled = new Map();
+  let nextId = 1;
+  return {
+    calls,
+    run: () => {
+      const due = [...scheduled.values()];
+      scheduled.clear();
+      due.forEach((fn) => fn());
+    },
+    globals: {
+      document: { cookie },
+      setTimeout: (fn) => {
+        const id = nextId++;
+        scheduled.set(id, fn);
+        return id;
+      },
+      clearTimeout: (id) => scheduled.delete(id),
+      fetch: (url, init) => {
+        calls.push({ url, body: JSON.parse(init.body) });
+        return Promise.resolve({ ok: true });
+      },
+    },
+  };
+}
+
+const CART = 'inline.js.plain.shopify-cart.pretty';
+const tick = () => new Promise((r) => setImmediate(r));
+
+test('shopify-cart writes the variant as a private cart attribute', async () => {
+  const { calls, globals, run } = cartGlobals();
+  const { sandbox, storage } = boot(CART, { globals });
+  const v = String(sandbox.ntb('hero'));
+
+  assert.equal(calls.length, 0, 'batched, not sent inline');
+  run();
+  await tick();
+
+  assert.equal(calls.length, 1);
+  assert.match(calls[0].url, /cart\/update\.js$/);
+  assert.deepEqual(plain(calls[0].body), { attributes: { __ntb_hero: v } });
+  // memo keyed to the cart, so a rotated cart re-stamps
+  assert.deepEqual(JSON.parse(storage.backing['ntb:cart:tok123']), { hero: v });
+});
+
+test('shopify-cart skips a cart it has already stamped', async () => {
+  const first = cartGlobals();
+  const { sandbox, storage } = boot(CART, { globals: first.globals });
+  sandbox.ntb('hero');
+  first.run();
+  await tick();
+  assert.equal(first.calls.length, 1);
+
+  const second = cartGlobals();
+  const again = boot(CART, {
+    storage: makeStorage({ ...storage.backing }),
+    globals: second.globals,
+  });
+  again.sandbox.ntb('hero');
+  second.run();
+  await tick();
+  assert.equal(second.calls.length, 0, 'no second write for the same cart');
+});
+
+test('shopify-cart batches several tests into one request', async () => {
+  const { calls, globals, run } = cartGlobals();
+  const { sandbox } = boot(CART, { globals });
+  const hero = String(sandbox.ntb('hero'));
+  const price = String(sandbox.ntb('price'));
+  run();
+  await tick();
+
+  assert.equal(calls.length, 1, 'one POST, so one prefetch-cache clear');
+  assert.deepEqual(plain(calls[0].body), {
+    attributes: { __ntb_hero: hero, __ntb_price: price },
+  });
+});
+
+test('shopify-cart stays quiet when there is no cart yet', async () => {
+  const { calls, globals, run } = cartGlobals('other=1');
+  const { sandbox } = boot(CART, { globals });
+  const v = sandbox.ntb('hero');
+  run();
+  await tick();
+
+  assert.ok(v === 0 || v === 1, 'bucketing still works');
+  assert.equal(calls.length, 0);
+});
+
 test('every variant carries attribution and license', () => {
   const keys = Object.keys(variants);
-  assert.equal(keys.length, 56);
+  assert.equal(keys.length, 120);
   for (const key of keys) {
     assert.match(variants[key], /NoTambourine/, key);
     assert.match(variants[key], /MIT license/, key);
