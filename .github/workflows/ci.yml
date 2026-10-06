@@ -6,8 +6,20 @@ on:
 permissions:
   contents: read
 jobs:
+  fleet:
+    permissions:
+      contents: read
+    uses: notambourine/fleet-actions/.github/workflows/fleet-ci.yml@0b96150ba8e1689573848ba12dc9dc573058b43f # v1.10.1
+    with:
+      runs-on: blacksmith-2vcpu-ubuntu-2404
+      pnpm-pin: false # npm repo; the pin targets pnpm's packageManager field
+      vet: true # small tree, keyless is seconds
+      vet-policy: .github/vet/policy.yml # gate on critical advisories only
   test:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    permissions:
+      contents: read
+    timeout-minutes: 10 # install through Socket, then lint, build, and the test suite
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
