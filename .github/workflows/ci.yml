@@ -12,6 +12,7 @@ jobs:
     uses: notambourine/fleet-actions/.github/workflows/fleet-ci.yml@be38cfcf9f9a3447ea3915d0231d027ef1992658 # v1.10.0
     with:
       runs-on: blacksmith-2vcpu-ubuntu-2404
+      pnpm-pin: false # npm repo; the pin targets pnpm's packageManager field
       vet: true # small tree, keyless is seconds
       vet-policy: .github/vet/policy.yml # gate on critical advisories only
       actionlint-extra-labels: |
