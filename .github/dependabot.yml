@@ -17,6 +17,10 @@ updates:
         update-types:
           - minor
           - patch
+      security:
+        applies-to: security-updates
+        patterns:
+          - "*"
     # majors are unmatched by any group -> individual PRs (one branch each)
   - package-ecosystem: github-actions
     directory: /
@@ -33,3 +37,7 @@ updates:
         update-types:
           - minor
           - patch
+      security:
+        applies-to: security-updates
+        patterns:
+          - "*"
