@@ -9,7 +9,7 @@ jobs:
   fleet:
     permissions:
       contents: read
-    uses: notambourine/fleet-actions/.github/workflows/fleet-ci.yml@0b96150ba8e1689573848ba12dc9dc573058b43f # v1.10.1
+    uses: notambourine/fleet-actions/.github/workflows/fleet-ci.yml@395ca93d41a57ade33fa1ad846befac455f063ac # v1.10.2
     with:
       runs-on: blacksmith-2vcpu-ubuntu-2404
       pnpm-pin: false # npm repo; the pin targets pnpm's packageManager field
@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: lts/*
       - uses: SocketDev/action@ba6de6cc0565af1f42295590380973573297e31f # v1.3.2
