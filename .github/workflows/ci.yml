@@ -9,7 +9,7 @@ jobs:
   fleet:
     permissions:
       contents: read
-    uses: notambourine/fleet-actions/.github/workflows/fleet-ci.yml@395ca93d41a57ade33fa1ad846befac455f063ac # v1.10.2
+    uses: notambourine/fleet-actions/.github/workflows/fleet-ci.yml@9925e04366b94c4bb3583b5182cabf199ee2071c # v1.10.3
     with:
       runs-on: blacksmith-2vcpu-ubuntu-2404
       pnpm-pin: false # npm repo; the pin targets pnpm's packageManager field
