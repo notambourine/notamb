@@ -11,10 +11,10 @@ jobs:
       contents: read
     uses: notambourine/fleet-actions/.github/workflows/fleet-ci.yml@3b6ab5d2b588283e483fe678df9fe255a44921ca # v1.11.0
     with:
-      runs-on: blacksmith-2vcpu-ubuntu-2404
       pnpm-pin: false # npm repo; the pin targets pnpm's packageManager field
       vet: true # small tree, keyless is seconds
-      vet-policy: .github/vet/policy.yml # gate on critical advisories only
+      vet-severity: critical
+      guarddog: true
   test:
     runs-on: blacksmith-2vcpu-ubuntu-2404
     permissions:
