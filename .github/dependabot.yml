@@ -9,6 +9,8 @@ updates:
     open-pull-requests-limit: 10
     cooldown:
       default-days: 7
+      exclude:
+        - "@notambourine/*"
       semver-major-days: 7
     groups:
       minor-and-patch:
@@ -30,6 +32,8 @@ updates:
       timezone: America/Chicago
     cooldown:
       default-days: 7
+      exclude:
+        - notambourine/*
     groups:
       actions:
         patterns:
